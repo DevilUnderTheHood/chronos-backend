@@ -47,7 +47,7 @@ Create a table named `arbitrage_ledger` in your Supabase project with the follow
 ### 2. Environment Variables
 Create a `.env` file or export the following variables in your terminal:
 ```bash
-export SUPABASE_URL="[https://your-project-id.supabase.co](https://your-project-id.supabase.co)"
+export SUPABASE_URL="https://your-project-id.supabase.co"
 export SUPABASE_KEY="your-anon-or-service-role-key"
 
 ```
@@ -133,7 +133,5 @@ Fires the exact moment the SPFA algorithm traces a negative-weight cycle.
 ## ⚠️ Disclaimer
 
 This software is provided for educational and hackathon demonstration purposes only. High-frequency algorithmic trading involves substantial risk of loss. The authors are not responsible for financial losses incurred by using or modifying this codebase.
-
-```
 
 ```
