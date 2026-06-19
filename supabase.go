@@ -1,4 +1,4 @@
-package storage
+package main
 
 import (
 	"log/slog"
@@ -16,7 +16,7 @@ func FetchHistoricalCount(projectURL, apiKey string) uint64 {
 	req.Header.Add("apikey", apiKey);
 	req.Header.Add("Authorization", "Bearer "+apiKey);
 	
-	req.Header.Add("Prefer", "count=planned");
+	req.Header.Add("Prefer", "count=exact");
 
 	client := &http.Client{};
 	resp, err := client.Do(req);

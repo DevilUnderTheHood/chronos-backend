@@ -1,4 +1,4 @@
-package engine
+package main
 
 type ExchangeInfo struct {
 	Symbols []SymbolInfo `json:"symbols"`
