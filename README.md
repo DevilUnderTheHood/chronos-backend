@@ -1,4 +1,3 @@
-```
 # Chronos: High-Frequency Arbitrage Engine
 
 <p align="center">
