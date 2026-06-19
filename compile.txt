@@ -1,0 +1,5 @@
+COMPILE:
+env GOAMD64=v3 go build -ldflags="-s -w" -o spfa_engine .
+
+RUN:
+GOMAXPROCS=6 GOGC=1000 ./spfa_engine
