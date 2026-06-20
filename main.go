@@ -46,6 +46,7 @@ func main() {
 
 	dbURL := os.Getenv("SUPABASE_URL");
 	dbKey := os.Getenv("SUPABASE_KEY");
+	port := os.Getenv("PORT");
 	
 	dbClient, err := supabase.NewClient(dbURL, dbKey, nil);
 	if err != nil {
@@ -82,5 +83,5 @@ func main() {
 
 	go StreamMultiplexer(subscriptions, graph, tickBuffer);
 
-	StartWebSocketServer(hub, "8080", dbURL, dbKey);
+	StartWebSocketServer(hub, port, dbURL, dbKey);
 }
