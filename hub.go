@@ -17,6 +17,7 @@ type ArbitragePayload struct {
 	Path        string  `json:"path"`
 	Multiplier  float64 `json:"multiplier"`
 	MaxCapacity float64 `json:"maxCapacity"`
+	INRProfit		float64 `json:"inrProfit"`
 }
 
 type EventHub struct {

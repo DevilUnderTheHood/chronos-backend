@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"sync/atomic"
@@ -23,7 +26,51 @@ var upgrader = websocket.Upgrader{
 }
 
 // StartWebSocketServer boots the HTTP listener and handles client connections
-func StartWebSocketServer(hub *EventHub, port string) {
+func StartWebSocketServer(hub *EventHub, port string, dbURL string, dbKey string) {
+
+	// Hydration endpoint during frontend startup
+	http.HandleFunc("/api/hydrate", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*");
+
+		url := fmt.Sprintf("%s/rest/v1/arbitrage_ledger?select=*&order=timestamp.desc&limit=25", dbURL);
+		req, _ := http.NewRequest("GET", url, nil);
+		req.Header.Add("apikey", dbKey);
+		req.Header.Add("Authorization", "Bearer "+dbKey);
+
+		client := &http.Client{Timeout: 5 * time.Second};
+		resp, err := client.Do(req);
+		if err != nil {
+			http.Error(w, "Failed to fetch ledger from cold storage", http.StatusInternalServerError);
+			return;
+		}
+		defer resp.Body.Close();
+
+		w.Header().Set("Content-Type", "application/json");
+		io.Copy(w, resp.Body);
+	})
+
+	http.HandleFunc("/api/totals", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*");
+
+		url := fmt.Sprintf("%s/rest/v1/rpc/get_ledger_totals", dbURL);
+		jsonBody := []byte(`{}`);
+		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody));
+		req.Header.Add("apikey", dbKey);
+		req.Header.Add("Authorization", "Bearer "+dbKey);
+		req.Header.Add("Content-Type", "application/json");
+
+		client := &http.Client{Timeout: 5 * time.Second};
+		resp, err := client.Do(req);
+		if err != nil {
+			http.Error(w, "Failed to fetch ledger totals from cold storage", http.StatusInternalServerError);
+			return;
+		}
+		defer resp.Body.Close();
+
+		w.Header().Set("Content-Type", "application/json");
+		io.Copy(w, resp.Body);
+	})
+
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil);
 		if err != nil {

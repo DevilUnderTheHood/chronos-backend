@@ -65,14 +65,22 @@ func main() {
 
 	dbChan := hub.SubscribeArbitrage()
 
+	var trackedAssets []string
+	for i := 0; i < graph.AssetCount; i++ {
+		trackedAssets = append(trackedAssets, graph.AssetName[i])
+	}
+	oracle := NewPricingOracle(trackedAssets)
+
+	time.Sleep(2*time.Second);
+
 	go StartSupabaseWorker(dbChan, dbClient)
 	StartTelemetry(graph);
 
-	go StartFormatterWorker(graph, rawCycleBuffer, hub);
+	go StartFormatterWorker(graph, rawCycleBuffer, hub, oracle);
 
 	go RunArbitrageEngine(graph, tickBuffer, rawCycleBuffer);
 
 	go StreamMultiplexer(subscriptions, graph, tickBuffer);
 
-	StartWebSocketServer(hub, "8080");
+	StartWebSocketServer(hub, "8080", dbURL, dbKey);
 }

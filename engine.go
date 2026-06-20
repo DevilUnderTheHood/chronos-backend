@@ -1,11 +1,11 @@
 package main
 
 import (
-	"math"
-	"sync/atomic"
-	"strings"
-	"time"
 	"fmt"
+	"math"
+	"strings"
+	"sync/atomic"
+	"time"
 )
 
 type RawCycleData struct {
@@ -131,9 +131,11 @@ func extractArbitrageCycle(parent [MaxAssets]int, cycleEnd int, assetCount int, 
 }
 
 
-func StartFormatterWorker(graph *MarketGraph, rawStream <-chan RawCycleData, hub *EventHub) {
+func StartFormatterWorker(graph *MarketGraph, rawStream <-chan RawCycleData, hub *EventHub, oracle *PricingOracle) {
 
 	cooldowns := make(map[string]time.Time);
+
+	const MinimumProfitINR = 0.01;
 
 	for raw := range rawStream {
 		var pathBuilder strings.Builder;
@@ -154,14 +156,28 @@ func StartFormatterWorker(graph *MarketGraph, rawStream <-chan RawCycleData, hub
 		
 		// Set a 1-second silence cooldown for this specific path
 		cooldowns[pathStr] = time.Now().Add(250 * time.Millisecond);
-		atomic.AddUint64(&GlobalCycleCount, 1);
 
+		baseAsset := graph.AssetName[raw.Path[0]]
+		
+		// Price read form PricingOracle
+		usdPrice := oracle.GetPrice(baseAsset)
+		inrRate := oracle.GetPrice("INR")
+		
+		baseProfit := raw.Capacity * (raw.Multiplier - 1.0)
+		calculatedInrProfit := baseProfit * usdPrice * inrRate
+
+		if calculatedInrProfit < MinimumProfitINR {
+			continue 
+		}
+
+		atomic.AddUint64(&GlobalCycleCount, 1);
 		payload := ArbitragePayload{
-			ID:          fmt.Sprintf("%d", time.Now().UnixMilli()),
+			ID:          fmt.Sprintf("%d%d", time.Now().UnixMilli(), atomic.LoadUint64(&GlobalCycleCount)),
 			Timestamp:   time.Now().UTC().Format(time.RFC3339),
 			Path:        pathStr,
 			Multiplier:  raw.Multiplier,
 			MaxCapacity: raw.Capacity,
+			INRProfit:   calculatedInrProfit,
 		}
 
 		hub.BroadcastArbitrage(payload);
