@@ -21,27 +21,35 @@ var (
 const MaxAssets = 100;
 const tradingFee = 0.001;
 
-func initLogger() *os.File {
-	logFile, err := os.OpenFile("engine.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666);
-	if err != nil {
-		log.Fatalf("Fatal: Could not open log file: %v\n", err);
-	}
-
-	logger := slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
+func initLogger() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
-	}));
-	slog.SetDefault(logger);
-
-	return logFile;
+	}))
+	slog.SetDefault(logger)
 }
+
+// func initLogger() *os.File {
+// 	logFile, err := os.OpenFile("engine.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666);
+// 	if err != nil {
+// 		log.Fatalf("Fatal: Could not open log file: %v\n", err);
+// 	}
+//
+// 	logger := slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
+// 		Level: slog.LevelDebug,
+// 	}));
+// 	slog.SetDefault(logger);
+//
+// 	return logFile;
+// }
 
 
 func main() {
 	GlobalStartTime = time.Now();	
 
-	logFile := initLogger();
-	defer logFile.Close();
+	// logFile := initLogger();
+	// defer logFile.Close();
 
+	initLogger();
 	slog.Info("Arbitrage Engine Boot Sequence Initiated", "version", "1.0.0");
 
 	dbURL := os.Getenv("SUPABASE_URL");
