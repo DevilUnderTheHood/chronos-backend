@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"log/slog"
 	"os"
 	"sync/atomic"
