@@ -83,7 +83,7 @@ func main() {
 	time.Sleep(2*time.Second);
 
 	go StartSupabaseWorker(dbChan, dbClient)
-	StartTelemetry(graph);
+	// StartTelemetry(graph);
 
 	go StartFormatterWorker(graph, rawCycleBuffer, hub, oracle);
 
