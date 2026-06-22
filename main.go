@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	// "log"
 	"log/slog"
 	"os"
 	"sync/atomic"
@@ -28,26 +27,11 @@ func initLogger() {
 	slog.SetDefault(logger)
 }
 
-// func initLogger() *os.File {
-// 	logFile, err := os.OpenFile("engine.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666);
-// 	if err != nil {
-// 		log.Fatalf("Fatal: Could not open log file: %v\n", err);
-// 	}
-//
-// 	logger := slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
-// 		Level: slog.LevelDebug,
-// 	}));
-// 	slog.SetDefault(logger);
-//
-// 	return logFile;
-// }
 
 
 func main() {
 	GlobalStartTime = time.Now();	
 
-	// logFile := initLogger();
-	// defer logFile.Close();
 
 	initLogger();
 	slog.Info("Arbitrage Engine Boot Sequence Initiated", "version", "1.0.0");
@@ -83,7 +67,6 @@ func main() {
 	time.Sleep(2*time.Second);
 
 	go StartSupabaseWorker(dbChan, dbClient)
-	// StartTelemetry(graph);
 
 	go StartFormatterWorker(graph, rawCycleBuffer, hub, oracle);
 
@@ -92,4 +75,5 @@ func main() {
 	go StreamMultiplexer(subscriptions, graph, tickBuffer);
 
 	StartWebSocketServer(hub, port, dbURL, dbKey);
+
 }
