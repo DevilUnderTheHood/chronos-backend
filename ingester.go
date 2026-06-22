@@ -153,7 +153,8 @@ func connectAndRead(subscriptions []string, graph *MarketGraph, tickBuffer chan<
 			select {
 				case tickBuffer <- tick:
 				default:
-					slog.Warn("Tick buffer full. Dropping market data.");
+					// Avoid adding delayed data to dogde false cycles generated.
+					return fmt.Errorf("tick buffer overflow: graph state is irrecoverably corrupted!");
 			}
 		}
 		

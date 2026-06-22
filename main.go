@@ -18,7 +18,7 @@ var (
 	GlobalStartTime  time.Time;
 )
 
-const MaxAssets = 100;
+const MaxAssets = 64;
 const tradingFee = 0.001;
 
 func initLogger() {
